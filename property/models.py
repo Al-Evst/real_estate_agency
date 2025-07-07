@@ -1,10 +1,20 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+from phonenumber_field.modelfields import PhoneNumberField
 
+User = get_user_model()
 
 class Flat(models.Model):
-    owner = models.CharField('ФИО владельца', max_length=200)
-    owners_phonenumber = models.CharField('Номер владельца', max_length=20)
+    
+
+    owners = models.ManyToManyField(
+        'Owner',
+        related_name='owned_flats',
+        verbose_name='Собственники',
+        blank=True
+    )
+
     created_at = models.DateTimeField(
         'Когда создано объявление',
         default=timezone.now,
@@ -12,6 +22,13 @@ class Flat(models.Model):
 
     description = models.TextField('Текст объявления', blank=True)
     price = models.IntegerField('Цена квартиры', db_index=True)
+
+    new_building = models.BooleanField(
+    'Новостройка',
+    null=True,
+    blank=True,
+    help_text='Отметьте, если квартира в новостройке'
+)
 
     town = models.CharField(
         'Город, где находится квартира',
@@ -46,6 +63,52 @@ class Flat(models.Model):
         null=True,
         blank=True,
         db_index=True)
+    
+    likes = models.ManyToManyField(
+        User,
+        verbose_name='Лайки',
+        related_name='liked_flats',
+        blank=True,
+    )
 
     def __str__(self):
         return f'{self.town}, {self.address} ({self.price}р.)'
+
+
+class Complaint(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь, который жалуется',
+        related_name='complaints'
+    )
+    flat = models.ForeignKey(
+        'Flat',
+        on_delete=models.CASCADE,
+        verbose_name='Квартира, на которую жалуются',
+        related_name='complaints'
+    )
+    text = models.TextField('Текст жалобы')
+    created_at = models.DateTimeField('Дата создания жалобы', auto_now_add=True)
+
+    def __str__(self):
+        return f'Жалоба от {self.user} на квартиру {self.flat}'
+    
+    class Meta:
+        verbose_name = 'Жалоба'
+        verbose_name_plural = 'Жалобы'
+
+
+class Owner(models.Model):
+    full_name = models.CharField('ФИО владельца', max_length=200)
+    phone_number = models.CharField('Телефон (сырые данные)', max_length=20, blank=True)
+    pure_phone = PhoneNumberField('Нормализованный телефон', blank=True, null=True, region='RU')
+    
+    
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        verbose_name = 'Собственник'
+        verbose_name_plural = 'Собственники'
