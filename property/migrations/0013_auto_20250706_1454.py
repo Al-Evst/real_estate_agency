@@ -5,7 +5,7 @@ def link_owners(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
     Owner = apps.get_model('property', 'Owner')
 
-    for flat in Flat.objects.all():
+    for flat in Flat.objects.iterator():
         if not flat.owner:
             continue
 

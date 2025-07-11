@@ -27,6 +27,7 @@ class Flat(models.Model):
     'Новостройка',
     null=True,
     blank=True,
+    db_index=True, 
     help_text='Отметьте, если квартира в новостройке'
 )
 
@@ -101,7 +102,6 @@ class Complaint(models.Model):
 
 class Owner(models.Model):
     full_name = models.CharField('ФИО владельца', max_length=200)
-    phone_number = models.CharField('Телефон (сырые данные)', max_length=20, blank=True)
     pure_phone = PhoneNumberField('Нормализованный телефон', blank=True, null=True, region='RU')
     
     

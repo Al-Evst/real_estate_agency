@@ -36,9 +36,9 @@ class ComplaintAdmin(admin.ModelAdmin):
 
 @admin.register(Owner)
 class OwnerAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'phone_number', 'pure_phone', 'display_flats']
+    list_display = ['full_name', 'pure_phone', 'display_flats']
     raw_id_fields = ['owned_flats']  
-    search_fields = ['full_name', 'phone_number', 'pure_phone']
+    search_fields = ['full_name', 'pure_phone']
 
     def display_flats(self, obj):
         flats = obj.owned_flats.all()[:3]  

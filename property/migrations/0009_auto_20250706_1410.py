@@ -5,7 +5,7 @@ import phonenumbers
 def normalize_phone_numbers(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
 
-    for flat in Flat.objects.all():
+    for flat in Flat.objects.iterator(): 
         raw_number = flat.owners_phonenumber
         try:
             parsed_number = phonenumbers.parse(raw_number, 'RU')
@@ -16,14 +16,13 @@ def normalize_phone_numbers(apps, schema_editor):
                 )
                 flat.save()
         except phonenumbers.NumberParseException:
-            
             continue
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('property', '0008_flat_owner_pure_phone'),  
+        ('property', '0008_flat_owner_pure_phone'),
     ]
 
     operations = [
